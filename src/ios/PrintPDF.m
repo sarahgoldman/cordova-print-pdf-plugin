@@ -44,7 +44,7 @@
     
     UIPrintInteractionController *printInteraction = [UIPrintInteractionController sharedPrintController];
     
-    if (!printController){
+    if (!printInteraction){
         return;
     }
     
@@ -70,7 +70,7 @@
         };
         
         
-		[controller presentAnimated:YES completionHandler:completionHandler];
+		[printInteraction presentAnimated:YES completionHandler:completionHandler];
 	}
 
 }
