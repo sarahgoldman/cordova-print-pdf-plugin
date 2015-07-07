@@ -10,38 +10,55 @@
 #import "PrintPDF.h"
 
 @interface PrintPDF (Private)
-- (void) doPrint;
+- (void) doPrintWithData:(NSData *)pdfData andCommand:(CDVInvokedUrlCommand *)command;
 - (void) callbackWithFuntion:(NSString *)function withData:(NSString *)value;
 - (BOOL) isPrintServiceAvailable;
 @end
 
 @implementation PrintPDF
 
-@synthesize successCallback, failCallback, pdfUrlString;
+@synthesize successCallback, failCallback;
 
-/*
- Is printing available. Callback returns true/false if printing is available/unavailable.
- */
+// Plugin Functions
  - (void) isPrintingAvailable:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:([self isPrintServiceAvailable] ? YES : NO)];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) print:(CDVInvokedUrlCommand*)command
+- (void) printWithURL:(CDVInvokedUrlCommand*)command
 {
     
-    self.pdfUrlString = [command.arguments objectAtIndex:0];
-	NSURL *fileURL = [NSURL URLWithString:self.pdfUrlString];
+    NSString *pdfUrlString = [command.arguments objectAtIndex:0];
+    
+	NSURL *fileURL = [NSURL URLWithString:pdfUrlString];
 	
 	NSData *pdfData = [NSData dataWithContentsOfURL:fileURL];
+    
+    [self doPrintWithData:pdfData andCommand:command];
+
+}
+
+- (void) printWithData:(CDVInvokedUrlCommand *)command
+{
+    NSString *pdfDataString = [command.arguments objectAtIndex:0];
+    
+    NSData *pdfData = [[NSData alloc] initWithBase64EncodedString:pdfDataString options:0];
+    
+    [self doPrintWithData:pdfData andCommand:command];
+}
+
+// Private Functions
+
+- (void) doPrintWithData:(NSData *)pdfData andCommand:(CDVInvokedUrlCommand*)command
+{
     
     if (![self isPrintServiceAvailable]){
         [self callbackWithFuntion:self.failCallback withData: @"{success: false, available: false}"];
         
         return;
     }
-    
+ 
     UIPrintInteractionController *printInteraction = [UIPrintInteractionController sharedPrintController];
     
     if (!printInteraction){
@@ -54,7 +71,7 @@
         printInfo.outputType = UIPrintInfoOutputGeneral;
         printInteraction.printInfo = printInfo;
         printInteraction.showsPageRange = YES;
-		printInteraction.printingItem = pdfData;
+        printInteraction.printingItem = pdfData;
         
         
         void (^completionHandler)(UIPrintInteractionController *, BOOL, NSError *) =
@@ -69,10 +86,21 @@
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         };
         
+        if([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+            
+            CGRect bounds = self.webView.bounds;
+            NSInteger dialogLeftPos = (bounds.size.width / 2) ;
+            NSInteger dialogTopPos = (bounds.size.height/2);
+            
+            [printInteraction presentFromRect:CGRectMake(dialogLeftPos, dialogTopPos, 0, 0) inView:self.webView animated:YES completionHandler:completionHandler];
+            
+        }
+        else {
+            [printInteraction presentAnimated:YES completionHandler:completionHandler];
+        }
         
-		[printInteraction presentAnimated:YES completionHandler:completionHandler];
-	}
-
+    }
+    
 }
 
 - (BOOL) isPrintServiceAvailable

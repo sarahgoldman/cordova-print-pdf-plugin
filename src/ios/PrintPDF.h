@@ -16,14 +16,13 @@
 @interface PrintPDF : CDVPlugin {
 	NSString* successCallback;
 	NSString* failCallback;
-	NSString* pdfUrlString;
 }
 
 @property (nonatomic, copy) NSString* successCallback;
 @property (nonatomic, copy) NSString* failCallback;
-@property (nonatomic, copy) NSString* pdfUrlString;
 
 - (void)isPrintingAvailable: (CDVInvokedUrlCommand*)command;
-- (void)print:(CDVInvokedUrlCommand*)command;
+- (void)printWithURL:(CDVInvokedUrlCommand*)command;
+- (void)printWithData:(CDVInvokedUrlCommand*)command;
 
 @end
