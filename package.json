@@ -1,0 +1,23 @@
+{
+  "name": "cordova-plugin-print-pdf",
+  "version": "1.0.0",
+  "description": "Cordova Print PDF Plugin",
+  "cordova": {
+    "id": "cordova-plugin-print-pdf",
+    "platforms": [
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sarahgoldman/cordova-print-pdf-plugin"
+  },
+  "keywords": [
+    "cordova",
+    "print",
+    "cordova-ios",
+    "pdf"
+  ],
+  "author": "Sarah Goldman",
+  "license": "MIT"
+}
