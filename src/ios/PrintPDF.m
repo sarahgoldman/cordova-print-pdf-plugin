@@ -6,6 +6,7 @@
 //  Copyright 2015 Sarah Goldman. All rights reserved.
 //  MIT licensed
 //
+#import "NSData+Base64.h"
 
 #import "PrintPDF.h"
 
@@ -43,7 +44,7 @@
 {
     NSString *pdfDataString = [command.arguments objectAtIndex:0];
     
-    NSData *pdfData = [[NSData alloc] initWithBase64EncodedString:pdfDataString options:0];
+    NSData *pdfData = [NSData dataFromBase64String:pdfDataString];
     
     [self doPrintWithData:pdfData andCommand:command];
 }

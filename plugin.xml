@@ -25,6 +25,9 @@
 
    <header-file src="src/ios/PrintPDF.h" />
    <source-file src="src/ios/PrintPDF.m" />
+
+   <header-file src="src/ios/NSData+Base64.h" />
+   <source-file src="src/ios/NSData+Base64.m" />
  </platform>
 
 </plugin>
