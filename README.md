@@ -6,7 +6,7 @@ This plugin brings up a native overlay to print a PDF document using [AirPrint](
 ## Usage
 
 ```
-window.plugins.PrintPDF.print();
+window.plugins.PrintPDF.print(options);
 ```
 
 The default options object
