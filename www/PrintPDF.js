@@ -32,7 +32,7 @@ PrintPDF.prototype.print = function(options) {
 		if (this.errorCallback) {
 			this.errorCallback({
 				success: false,
-				error: "Parameters 'type' and 'item' are required."
+				error: "Parameters 'type' and 'data' are required."
 			});
 		}
 		return false;
