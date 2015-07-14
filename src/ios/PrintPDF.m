@@ -90,8 +90,8 @@
             
             CGRect bounds = self.webView.bounds;
 
-			NSInteger dialogX = [command.arguments objectAtIndex:1];
-			NSInteger dialogY = [command.arguments objectAtIndex:2];
+			NSInteger dialogX = [[command.arguments objectAtIndex:1] integerValue];
+			NSInteger dialogY = [[command.arguments objectAtIndex:2] integerValue];
 			
 			if (dialogX < 0) {
 				dialogX = (bounds.size.width / 2);
