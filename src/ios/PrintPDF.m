@@ -31,7 +31,7 @@
 {
     
     NSString *pdfUrlString = [command.arguments objectAtIndex:0];
-    
+	
 	NSURL *fileURL = [NSURL URLWithString:pdfUrlString];
 	
 	NSData *pdfData = [NSData dataWithContentsOfURL:fileURL];
@@ -74,7 +74,6 @@
         printInteraction.showsPageRange = YES;
         printInteraction.printingItem = pdfData;
         
-        
         void (^completionHandler)(UIPrintInteractionController *, BOOL, NSError *) =
         ^(UIPrintInteractionController *printController, BOOL completed, NSError *error) {
             CDVPluginResult* pluginResult = nil;
@@ -90,10 +89,19 @@
         if([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
             
             CGRect bounds = self.webView.bounds;
-            NSInteger dialogLeftPos = (bounds.size.width / 2) ;
-            NSInteger dialogTopPos = (bounds.size.height/2);
+
+			NSInteger dialogX = [command.arguments objectAtIndex:1];
+			NSInteger dialogY = [command.arguments objectAtIndex:2];
+			
+			if (dialogX < 0) {
+				dialogX = (bounds.size.width / 2);
+			}
+			
+			if (dialogY < 0) {
+				dialogY = (bounds.size.width / 2);
+			}
             
-            [printInteraction presentFromRect:CGRectMake(dialogLeftPos, dialogTopPos, 0, 0) inView:self.webView animated:YES completionHandler:completionHandler];
+            [printInteraction presentFromRect:CGRectMake(dialogX, dialogY, 0, 0) inView:self.webView animated:YES completionHandler:completionHandler];
             
         }
         else {

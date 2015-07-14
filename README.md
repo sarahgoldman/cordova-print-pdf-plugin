@@ -5,34 +5,61 @@ This plugin brings up a native overlay to print a PDF document using [AirPrint](
 
 ## Usage
 
-**with public link to PDF**
+```
+window.plugins.PrintPDF.print();
+```
 
-```printWithURL( url, title, successCallback, failCallback )```
+The default options object
+```
+var options = {
 
-Example:
+	type: null, 	// must be either 'url' or 'base64' (required)
+
+	data: null, 	// print data, either a url string or base64 string (required)
+
+	title: '', 		// title of document
+
+	dialogX: -1,	// if a dialog coord is not set, it defaults to -1.
+					// the iOS method will fall back to center if it gets
+	dialogY: -1,	// a dialog coord less than 0. (iPad only)
+
+	success: null,	// success callback function
+
+	error: null		// error callback function, argument format:
+					// {success: [boolean], available: [boolean], error: [string]}
+	
+};
+```
+
+## URL Example:
 
 ```
-var url = 'http://www.sushirockva.com/media/docs/Sushi-Rock-Dinner.pdf';
-var title = 'Sushi Rock Menu';
-window.plugins.PrintPDF.printWithURL(url,title,function(){
-	console.log('success');
-},function(){
-	console.log('fail');
+window.plugins.PrintPDF.print({
+	type: 'url',
+	data: 'http://www.sushirockva.com/media/docs/Sushi-Rock-Dinner.pdf',
+	title: 'Sushi Rock Menu',
+	success: function(){
+		console.log('success');
+	},
+	error: function(data){
+		console.log('failed: ' + data.error);
+	}
 });
 ```
 
-**with PDF converted to base64 encoded string**
-
-```printWithData( base64String, title, successCallback, failCallback )```
-
-Example:
+## Base64 Example:
 
 ```
-var data = 'base64encodedStringHere';
-var title = 'Sushi Rock Menu';
-window.plugins.PrintPDF.printWithData(data,title,function(){
-	console.log('success');
-},function(){
-	console.log('fail');
+var encodedString = 'base64encodedStringHere';
+window.plugins.PrintPDF.print({
+	type: 'base64',
+	data: encodedString,
+	title: 'Sushi Rock Menu',
+	success: function(){
+		console.log('success');
+	},
+	error: function(data){
+		console.log('failed: ' + data.error);
+	}
 });
 ```
