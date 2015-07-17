@@ -55,27 +55,16 @@ PrintPDF.prototype.print = function(options) {
         var code = '',
 			self = this;
 		
+		var gadget = new cloudprint.Gadget();
+		
 		// depending on the type of data, set the appropriate script params
 		if (this.type === this.URL_TYPE) {
-			code = 'javascript:printDialog.setPrintDocument("url", "'+this.title+'", "'+this.data+'");';
+			gadget.setPrintDocument('url', this.title, this.data);
 		} else {
-			code = 'javascript:printDialog.setPrintDocument("application/pdf", "'+this.title+'", "'+this.data+'","base64");';
+			gadget.setPrintDocument('application/pdf', this.title, this.data, 'base64');
 		}
-		// open the Google Cloud Print window and run the script
-        var ref = window.open('https://www.google.com/cloudprint/dialog.html', '_blank', 'location=yes');
-        ref.addEventListener('loadstop', function (event) {
-            //wait 1 second till printDialog object is initialized
-            setTimeout(function () {
-                ref.executeScript({
-                    code: code,
-                }, function () {
-                    console.log('document assigned successfully to google cloud print dialog');
-					if (self.successCallback) {
-						self.successCallback();
-					}
-                });
-            }, 1000);
-        });
+		// open the Google Cloud Print gadget
+        gadget.openPrintDialog();
 
     } else { // we're doing iOS native print
 

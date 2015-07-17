@@ -15,6 +15,10 @@
     <clobbers target="window.PrintPDF" />
   </js-module>
 
+  <js-module src="www/cpgadget.js" name="cloudprint.Gadget">
+    <clobbers target="cloudprint.Gadget" />
+  </js-module>
+
   <!-- ios -->
   <platform name="ios">
    <config-file target="config.xml" parent="/*">
