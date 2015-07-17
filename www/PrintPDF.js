@@ -52,10 +52,7 @@ PrintPDF.prototype.print = function(options) {
 	// use Google Cloud Print for Android devices
 	if (device.platform == "Android") {
 
-        var code = '',
-			self = this;
-		
-		var gadget = new cloudprint.Gadget();
+        var gadget = new cloudprint.Gadget();
 		
 		// depending on the type of data, set the appropriate script params
 		if (this.type === this.URL_TYPE) {
