@@ -4,8 +4,8 @@
 var PrintPDF = function () {
 	this.URL_TYPE = 'url';
 	this.BASE64_TYPE = 'base64';
-	this.URL_IOS_METHOD = 'printWithURL';
-	this.BASE64_IOS_METHOD = 'printWithData';
+	this.URL_METHOD = 'printWithURL';
+	this.BASE64_METHOD = 'printWithData';
 };
 
 PrintPDF.prototype.print = function(options) {
@@ -49,22 +49,21 @@ PrintPDF.prototype.print = function(options) {
 		return false;
 	}	
 	
-	// use Google Cloud Print for Android devices
-	if (device.platform == "Android") {
-
-
-    } else { // we're doing iOS native print
-
-		// arguments for ios method
-		var args = [this.data, this.dialogX, this.dialogY]; 
+	// depending on the type of data, set the appropriate ios method to call
+	var method = (this.type === this.URL_TYPE) ? this.URL_METHOD : this.BASE64_METHOD;
+	
+	var args = [this.data]; 
+	
+	if (device.platform === "iOS") {
 		
-		// depending on the type of data, set the appropriate ios method to call
-		var method = (this.type === this.URL_TYPE) ? this.URL_IOS_METHOD : this.BASE64_IOS_METHOD;
-		
-		// make the call
-        cordova.exec(this.successCallback, this.errorCallback, 'PrintPDF', method, args);
+		// add dialog arguments for ios method
+		args.push(this.dialogX);
+		args.push(this.dialogY);
 
-    }
+    }	
+
+	// make the call
+    cordova.exec(this.successCallback, this.errorCallback, 'PrintPDF', method, args);
 		
 }
 
