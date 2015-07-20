@@ -52,16 +52,6 @@ PrintPDF.prototype.print = function(options) {
 	// use Google Cloud Print for Android devices
 	if (device.platform == "Android") {
 
-        var gadget = new cloudprint.Gadget();
-		
-		// depending on the type of data, set the appropriate script params
-		if (this.type === this.URL_TYPE) {
-			gadget.setPrintDocument('url', this.title, this.data);
-		} else {
-			gadget.setPrintDocument('application/pdf', this.title, this.data, 'base64');
-		}
-		// open the Google Cloud Print gadget
-        gadget.openPrintDialog();
 
     } else { // we're doing iOS native print
 

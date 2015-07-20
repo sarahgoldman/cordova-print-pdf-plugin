@@ -9,13 +9,9 @@
   <license>MIT</license>
 
   <dependency id="cordova-plugin-device" url="https://github.com/apache/cordova-plugin-device.git" />
-  <dependency id="cordova-plugin-inappbrowser" url="https://github.com/apache/cordova-plugin-inappbrowser.git" />
 
   <js-module src="www/PrintPDF.js" name="PrintPDF">
     <clobbers target="window.PrintPDF" />
-  </js-module>
-
-  <js-module src="www/cpgadget.js" name="cloudprint">
   </js-module>
 
   <!-- ios -->
