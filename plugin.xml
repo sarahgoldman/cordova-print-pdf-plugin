@@ -30,4 +30,16 @@
    <source-file src="src/ios/NSData+Base64.m" />
  </platform>
 
+	<!-- android -->
+	<platform name="android">
+
+		<config-file target="res/xml/config.xml" parent="/*">
+			<feature name="PrintPDF">
+				<param name="android-package" value="com.sgoldm.plugin.PrintPDF"/>
+			</feature>
+		</config-file>
+
+		<source-file src="src/android/PrintPDF.java" target-dir="src/com/sgoldm/plugin/"/>
+	</platform>
+
 </plugin>

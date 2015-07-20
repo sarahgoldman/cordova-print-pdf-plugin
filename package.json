@@ -5,7 +5,8 @@
   "cordova": {
     "id": "cordova-plugin-print-pdf",
     "platforms": [
-      "ios"
+      "ios",
+	  "android"
     ]
   },
   "repository": {
@@ -16,6 +17,7 @@
     "cordova",
     "print",
     "cordova-ios",
+    "cordova-android",
     "pdf"
   ],
   "author": "Sarah Goldman",
