@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-print-pdf"
-	version="2.0.0">
+	version="2.1.0">
 	<name>PrintPDF</name>
 	<description>Cordova Print PDF Plugin</description>
 	<license>MIT</license>

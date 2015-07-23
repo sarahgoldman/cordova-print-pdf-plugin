@@ -28,6 +28,8 @@ public class PrintPDF extends CordovaPlugin {
 	public static final String ACTION_IS_PRINT_AVAILABLE = "isPrintingAvailable";
 	private static final String DEFAULT_DOC_NAME = "unknown";
 
+    private String filePathString;
+
     /**
      * Executes the request.
      *
@@ -94,15 +96,15 @@ public class PrintPDF extends CordovaPlugin {
 
         try {
             File outputDir = cordova.getActivity().getCacheDir();
-            final File filePath = File.createTempFile(title, null, outputDir);
+            File filePath = File.createTempFile(title, null, outputDir);
             FileOutputStream os = new FileOutputStream(filePath, true);
             os.write(pdfAsBytes);
             os.close();
-
+            filePathString = filePath.toString();
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    printViaGoogleCloudPrintDialog(title, filePath.toString());
+                    printViaGoogleCloudPrintDialog(title, filePathString);
                 }
             });
         } catch (Exception e) {
@@ -163,6 +165,8 @@ public class PrintPDF extends CordovaPlugin {
     @Override
     public void onActivityResult(int reqCode, int resCode, Intent intent) {
         super.onActivityResult(reqCode, resCode, intent);
+        File file = new File(filePathString);
+        boolean deleted = file.delete();
         command.success();
         command = null;
     }
