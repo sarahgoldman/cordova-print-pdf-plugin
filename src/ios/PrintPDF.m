@@ -11,8 +11,6 @@
 #import "PrintPDF.h"
 
 @interface PrintPDF (Private)
-- (void) doPrintWithData:(NSData *)pdfData andCommand:(CDVInvokedUrlCommand *)command;
-- (void) callbackWithFuntion:(NSString *)function withData:(NSString *)value;
 - (BOOL) isPrintServiceAvailable;
 @end
 
@@ -27,36 +25,15 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) printWithURL:(CDVInvokedUrlCommand*)command
-{
-    
-    NSString *pdfUrlString = [command.arguments objectAtIndex:0];
-	
-	NSURL *fileURL = [NSURL URLWithString:pdfUrlString];
-	
-	NSData *pdfData = [NSData dataWithContentsOfURL:fileURL];
-    
-    [self doPrintWithData:pdfData andCommand:command];
-
-}
-
 - (void) printWithData:(CDVInvokedUrlCommand *)command
 {
     NSString *pdfDataString = [command.arguments objectAtIndex:0];
     
     NSData *pdfData = [NSData dataFromBase64String:pdfDataString];
-    
-    [self doPrintWithData:pdfData andCommand:command];
-}
 
-// Private Functions
-
-- (void) doPrintWithData:(NSData *)pdfData andCommand:(CDVInvokedUrlCommand*)command
-{
-    
     if (![self isPrintServiceAvailable]){
-        [self callbackWithFuntion:self.failCallback withData: @"{success: false, available: false}"];
-        
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{success: false, available: false}"];
+	    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
  

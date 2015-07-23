@@ -2,73 +2,72 @@
  * @constructor
  */
 var PrintPDF = function () {
-	this.URL_TYPE = 'url';
-	this.BASE64_TYPE = 'base64';
-	this.URL_METHOD = 'printWithURL';
 	this.BASE64_METHOD = 'printWithData';
+	this.IS_AVAILABLE_METHOD = 'isPrintingAvailable';
+	this.CLASS = 'PrintPDF';
 };
 
 PrintPDF.prototype.print = function(options) {
 	
 	options = options || {};
+		
+	var data = options.data; // print data, base64 string (required)
 	
-	this.type = options.type; // type, either url or base64 (required)
+	var title = options.title || 'Print Document'; // title of document
 	
-	this.data = options.data; // print data, either url string or base64 string (required)
-	
-	this.title = options.title || ''; // title of document
-	
-	this.dialogX = options.dialogX || -1; // if a dialog coord is not set, default to -1.
+	var dialogX = options.dialogX || -1; // if a dialog coord is not set, default to -1.
 										  // the iOS method will fall back to center on the  
-	this.dialogY = options.dialogY || -1; // screen if it gets a dialog coord less than 0.
+	var dialogY = options.dialogY || -1; // screen if it gets a dialog coord less than 0.
 	
 	// make sure callbacks are functions or reset to null
-	this.successCallback = (options.success && typeof(options.success) === 'function') ? options.success : null; 
+	var successCallback = (options.success && typeof(options.success) === 'function') ? options.success : this.defaultCallback; 
 	
-	this.errorCallback = (options.error && typeof(options.error) === 'function') ? options.error : null;
+	var errorCallback = (options.error && typeof(options.error) === 'function') ? options.error : this.defaultCallback;
 		
-	// make sure both type and item are set	
-	if (!this.type || !this.data) {
-		if (this.errorCallback) {
-			this.errorCallback({
+	// make sure data is set	
+	if (!data) {
+		if (errorCallback) {
+			errorCallback({
 				success: false,
-				error: "Parameters 'type' and 'data' are required."
+				error: "Parameter 'data' is required."
 			});
 		}
 		return false;
 	}
 	
-	// make sure type is one of the two defined types
-	if (this.type !== this.URL_TYPE && this.type !== this.BASE64_TYPE) {
-		if (this.errorCallback) {
-			this.errorCallback({
-				success: false,
-				error: "Parameter 'type' must be 'url' or 'base64'."
-			});
-		}
-		return false;
-	}	
-	
-	// depending on the type of data, set the appropriate ios method to call
-	var method = (this.type === this.URL_TYPE) ? this.URL_METHOD : this.BASE64_METHOD;
-	
-	var args = [this.data]; 
+	var args = [data];
 	
 	if (device.platform === "iOS") {
 		
-		// add dialog arguments for ios method
-		args.push(this.dialogX);
-		args.push(this.dialogY);
-
-    }	
-
-	// make the call
-    cordova.exec(this.successCallback, this.errorCallback, 'PrintPDF', method, args);
+		args.push(dialogX);
+		args.push(dialogY);
+	
+    } else {
+	
+		args.push(title);
 		
-}
+	}
+	
+	// make the call
+    cordova.exec(successCallback, errorCallback, this.CLASS, this.BASE64_METHOD, args);
+		
+};
 
-PrintPDF.prototype.isPrintingAvailable = function (successCallback, errorCallback) {
-    cordova.exec(successCallback, errorCallback, 'PrintPDF', 'isPrintingAvailable', []);
+PrintPDF.prototype.isPrintingAvailable = function (options) {
+	
+	options = options || {};
+	
+	// make sure callbacks are functions or reset to null
+	var successCallback = (options.success && typeof(options.success) === 'function') ? options.success : this.defaultCallback; 
+	
+	var errorCallback = (options.error && typeof(options.error) === 'function') ? options.error : this.defaultCallback;
+	
+    cordova.exec(successCallback, errorCallback, this.CLASS, this.IS_AVAILABLE_METHOD, []);
+
+};
+
+PrintPDF.prototype.defaultCallback = function (e) {
+	console.log(e);
 };
 
 // Plug in to Cordova

@@ -13,9 +13,7 @@ The default options object
 ```
 var options = {
 
-	type: null, 	// must be either 'url' or 'base64' (required)
-
-	data: null, 	// print data, either a url string or base64 string (required)
+	data: null, 	// print data, base64 string (required)
 
 	title: '', 		// title of document
 
@@ -31,28 +29,11 @@ var options = {
 };
 ```
 
-## URL Example:
-
-```
-window.plugins.PrintPDF.print({
-	type: 'url',
-	data: 'http://www.sushirockva.com/media/docs/Sushi-Rock-Dinner.pdf',
-	title: 'Sushi Rock Menu',
-	success: function(){
-		console.log('success');
-	},
-	error: function(data){
-		console.log('failed: ' + data.error);
-	}
-});
-```
-
-## Base64 Example:
+## Example:
 
 ```
 var encodedString = 'base64encodedStringHere';
 window.plugins.PrintPDF.print({
-	type: 'base64',
 	data: encodedString,
 	title: 'Sushi Rock Menu',
 	success: function(){

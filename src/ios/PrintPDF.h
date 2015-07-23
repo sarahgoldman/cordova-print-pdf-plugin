@@ -22,7 +22,6 @@
 @property (nonatomic, copy) NSString* failCallback;
 
 - (void)isPrintingAvailable: (CDVInvokedUrlCommand*)command;
-- (void)printWithURL:(CDVInvokedUrlCommand*)command;
 - (void)printWithData:(CDVInvokedUrlCommand*)command;
 
 @end
