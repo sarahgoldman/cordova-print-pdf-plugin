@@ -55,7 +55,7 @@
         ^(UIPrintInteractionController *printController, BOOL completed, NSError *error) {
             CDVPluginResult* pluginResult = nil;
             if (!completed || error) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"{success: false, available: true, error: \"%@\"}", error.localizedDescription]];
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"{success: false, available: true, error: '%@'}", error.localizedDescription]];
             }
             else{
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"{success: true}"];
