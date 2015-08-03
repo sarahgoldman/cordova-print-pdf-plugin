@@ -32,7 +32,7 @@
     NSData *pdfData = [NSData dataFromBase64String:pdfDataString];
 
     if (![self isPrintServiceAvailable]){
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{'success': false, 'available': false}"];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": false}"];
 	    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
@@ -55,10 +55,10 @@
         ^(UIPrintInteractionController *printController, BOOL completed, NSError *error) {
             CDVPluginResult* pluginResult = nil;
             if (!completed || error) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"{'success': false, 'available': true, 'error': '%@'}", error.localizedDescription]];
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"{\"success\": false, \"available\": true, \"error\": \"%@\"}", error.localizedDescription]];
             }
             else{
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"{'success': true}"];
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"{\"success\": true}"];
             }
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         };
