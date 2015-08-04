@@ -16,7 +16,7 @@
 
 @implementation PrintPDF
 
-@synthesize successCallback, failCallback;
+@synthesize successCallback, failCallback, wasDismissed;
 
 // Plugin Functions
  - (void) isPrintingAvailable:(CDVInvokedUrlCommand*)command
@@ -30,6 +30,8 @@
     NSString *pdfDataString = [command.arguments objectAtIndex:0];
     
     NSData *pdfData = [NSData dataFromBase64String:pdfDataString];
+    
+    self.wasDismissed = NO;
 
     if (![self isPrintServiceAvailable]){
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": false}"];
@@ -50,12 +52,26 @@
         printInteraction.printInfo = printInfo;
         printInteraction.showsPageRange = YES;
         printInteraction.printingItem = pdfData;
+        printInteraction.delegate = self;
         
         void (^completionHandler)(UIPrintInteractionController *, BOOL, NSError *) =
         ^(UIPrintInteractionController *printController, BOOL completed, NSError *error) {
             CDVPluginResult* pluginResult = nil;
             if (!completed || error) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"{\"success\": false, \"available\": true, \"error\": \"%@\"}", error.localizedDescription]];
+                
+                if (self.wasDismissed) {
+                    
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": true, \"dismissed\": true}"];
+                    
+                } else {
+	
+                    if (error != nil) {
+						pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"{\"success\": false, \"available\": true, \"error\": \"%@\", \"dismissed\": false}", error.localizedDescription]];
+                    } else {
+                        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": true, \"dismissed\": false}"];
+                    }
+
+                }
             }
             else{
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"{\"success\": true}"];
@@ -100,6 +116,12 @@
     
     
     return NO;
+}
+
+- (void)printInteractionControllerDidDismissPrinterOptions:(UIPrintInteractionController *)printInteractionController
+{
+    NSLog(@"DISMISSED");
+    self.wasDismissed = YES;
 }
 
 @end

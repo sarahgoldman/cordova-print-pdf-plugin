@@ -13,13 +13,14 @@
 #import <Cordova/CDVPlugin.h>
 
 
-@interface PrintPDF : CDVPlugin {
+@interface PrintPDF : CDVPlugin <UIPrintInteractionControllerDelegate> {
 	NSString* successCallback;
 	NSString* failCallback;
 }
 
 @property (nonatomic, copy) NSString* successCallback;
 @property (nonatomic, copy) NSString* failCallback;
+@property (nonatomic) BOOL wasDismissed;
 
 - (void)isPrintingAvailable: (CDVInvokedUrlCommand*)command;
 - (void)printWithData:(CDVInvokedUrlCommand*)command;

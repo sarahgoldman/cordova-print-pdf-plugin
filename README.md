@@ -23,8 +23,9 @@ var options = {
 
 	success: null,	// success callback function
 
-	error: null		// error callback function, argument format:
-					// {success: [boolean], available: [boolean], error: [string]}
+	error: null		// error callback function, returns json as a string.
+	 				// parsed json format:
+					// {success: [boolean], available: [boolean], error: [string], dismissed: [boolean]}
 	
 };
 ```
@@ -35,11 +36,12 @@ var options = {
 var encodedString = 'base64encodedStringHere';
 window.plugins.PrintPDF.print({
 	data: encodedString,
-	title: 'Sushi Rock Menu',
+	title: 'Print Document',
 	success: function(){
 		console.log('success');
 	},
 	error: function(data){
+		data = JSON.parse(data);
 		console.log('failed: ' + data.error);
 	}
 });
