@@ -108,7 +108,7 @@ public class PrintPDF extends CordovaPlugin {
                 }
             });
         } catch (Exception e) {
-            PluginResult result = new PluginResult(PluginResult.Status.ERROR, e.getMessage());
+            PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \""+e.getMessage()+"\"}");
             command.sendPluginResult(result);
             return;
         }
