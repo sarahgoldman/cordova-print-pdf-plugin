@@ -1,7 +1,7 @@
 Print PDF plugin for Cordova / PhoneGap
 ======================================================
 
-This plugin brings up a native overlay to print a PDF document using [AirPrint](http://en.wikipedia.org/wiki/AirPrint) for iOS and [Google Cloud Print](http://www.google.com/landing/cloudprint/) for Android.
+This plugin brings up a native overlay to print a PDF document using [AirPrint](http://en.wikipedia.org/wiki/AirPrint) for iOS and Android Printing APIs on Android devices running 4.4 or later. **If you need to support printing on an Android device running 4.3 or less, checkout the `google-cloud-print` branch.
 
 ## Usage
 
