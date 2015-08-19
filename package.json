@@ -1,12 +1,12 @@
 {
   "name": "cordova-plugin-print-pdf",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "Cordova Print PDF Plugin",
   "cordova": {
     "id": "cordova-plugin-print-pdf",
     "platforms": [
       "ios",
-	  "android"
+	    "android"
     ]
   },
   "repository": {
