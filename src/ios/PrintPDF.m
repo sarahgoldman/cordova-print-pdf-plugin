@@ -6,7 +6,7 @@
 //  Copyright 2015 Sarah Goldman. All rights reserved.
 //  MIT licensed
 //
-#import "NSData+PPBase64.h"
+#import "NSData+Base64.h"
 
 #import "PrintPDF.h"
 
