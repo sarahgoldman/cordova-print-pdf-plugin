@@ -24,5 +24,6 @@
 
 - (void)isPrintingAvailable: (CDVInvokedUrlCommand*)command;
 - (void)printWithData:(CDVInvokedUrlCommand*)command;
+- (void)dismissPrintDialog:(CDVInvokedUrlCommand*)command;
 
 @end

@@ -105,6 +105,11 @@
     
 }
 
+ - (void) dismissPrintDialog:(CDVInvokedUrlCommand*)command
+{
+    
+}
+
 - (BOOL) isPrintServiceAvailable
 {
     

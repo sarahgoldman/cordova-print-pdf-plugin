@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-print-pdf"
-	version="3.0.1">
+	version="3.1.0">
 	<name>PrintPDF</name>
 	<description>Cordova Print PDF Plugin</description>
 	<license>MIT</license>
@@ -19,12 +19,12 @@
 	<platform name="ios">
 		<config-file target="config.xml" parent="/*">
 			<feature name="PrintPDF">
-				<param name="ios-package" value="PrintPDF" />
+				<param name="ios-package" value="CDVPrintPDF" />
 			</feature>
 		</config-file>
 
-		<header-file src="src/ios/PrintPDF.h" />
-		<source-file src="src/ios/PrintPDF.m" />
+		<header-file src="src/ios/CDVPrintPDF.h" />
+		<source-file src="src/ios/CDVPrintPDF.m" />
 	</platform>
 
 	<!-- android -->
