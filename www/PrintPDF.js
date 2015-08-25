@@ -4,6 +4,7 @@
 var PrintPDF = function () {
 	this.BASE64_METHOD = 'printWithData';
 	this.IS_AVAILABLE_METHOD = 'isPrintingAvailable';
+	this.DISMISS_METHOD = 'dismissPrintDialog';
 	this.CLASS = 'PrintPDF';
 };
 
@@ -63,6 +64,27 @@ PrintPDF.prototype.isPrintingAvailable = function (options) {
 	var errorCallback = (options.error && typeof(options.error) === 'function') ? options.error : this.defaultCallback;
 	
     cordova.exec(successCallback, errorCallback, this.CLASS, this.IS_AVAILABLE_METHOD, []);
+
+};
+
+PrintPDF.prototype.dismiss = function (options) {
+
+	// Dismiss is only an iOS method because the dialog exists in the 
+	// same context as the cordova activity. In Android, when the 
+	// print activity starts, the cordova activity is paused.
+	
+	if (device.platform === "iOS") {
+	
+		options = options || {};
+		
+		// make sure callbacks are functions or reset to null
+		var successCallback = (options.success && typeof(options.success) === 'function') ? options.success : this.defaultCallback; 
+		
+		var errorCallback = (options.error && typeof(options.error) === 'function') ? options.error : this.defaultCallback;
+		
+	    cordova.exec(successCallback, errorCallback, this.CLASS, this.DISMISS_METHOD, []);
+
+	}
 
 };
 
