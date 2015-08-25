@@ -49,19 +49,15 @@ window.plugins.PrintPDF.dismiss();
 Use the `isPrintingAvailable` function to check if native printing is supported and available.
 
 ```
-window.plugins.PrintPDF.isPrintingAvailable(options);
+window.plugins.PrintPDF.isPrintingAvailable(callback);
 ```
 
-The default options object
-```
-var options = {
+Example callback function
 
-	success: null	// success callback function, argument is a boolean.
-					// e.g. function(isAvailable) {
-					// 			console.log('printing is available: '+ isAvailable);
-					// }
-	
-};
+```
+var callback = function(isAvailable) {
+	console.log('printing is available: '+ isAvailable);
+}
 ```
 
 ## Example:

@@ -54,16 +54,12 @@ PrintPDF.prototype.print = function(options) {
 		
 };
 
-PrintPDF.prototype.isPrintingAvailable = function (options) {
-	
-	options = options || {};
+PrintPDF.prototype.isPrintingAvailable = function (callback) {
 	
 	// make sure callbacks are functions or reset to null
-	var successCallback = (options.success && typeof(options.success) === 'function') ? options.success : this.defaultCallback; 
+	var successCallback = (callback && typeof(callback) === 'function') ? callback : this.defaultCallback; 
 	
-	var errorCallback = (options.error && typeof(options.error) === 'function') ? options.error : this.defaultCallback;
-	
-    cordova.exec(successCallback, errorCallback, this.CLASS, this.IS_AVAILABLE_METHOD, []);
+    cordova.exec(successCallback, null, this.CLASS, this.IS_AVAILABLE_METHOD, []);
 
 };
 
