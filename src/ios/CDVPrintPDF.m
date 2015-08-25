@@ -1,5 +1,5 @@
 //
-//  PrintPDF.m
+//  CDVPrintPDF.m
 //  Print PDF
 //
 //  Created by Sarah Goldman (github.com/sarahgoldman) on 07/06/2015.
@@ -10,11 +10,11 @@
 
 #import "CDVPrintPDF.h"
 
-@interface PrintPDF (Private)
+@interface CDVPrintPDF (Private)
 - (BOOL) isPrintServiceAvailable;
 @end
 
-@implementation PrintPDF
+@implementation CDVPrintPDF
 
 @synthesize successCallback, failCallback, wasDismissed;
 
@@ -107,7 +107,8 @@
 
  - (void) dismissPrintDialog:(CDVInvokedUrlCommand*)command
 {
-
+    self.wasDismissed = YES;
+    [[UIPrintInteractionController sharedPrintController] dismissAnimated:NO];
 }
 
 - (BOOL) isPrintServiceAvailable

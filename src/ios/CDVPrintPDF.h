@@ -1,5 +1,5 @@
 //
-//  PrintPDF.h
+//  CDVPrintPDF.h
 //  Print PDF
 //
 //  Created by Sarah Goldman (github.com/sarahgoldman) on 07/06/2015.
@@ -13,7 +13,7 @@
 #import <Cordova/CDVPlugin.h>
 
 
-@interface PrintPDF : CDVPlugin <UIPrintInteractionControllerDelegate> {
+@interface CDVPrintPDF : CDVPlugin <UIPrintInteractionControllerDelegate> {
 	NSString* successCallback;
 	NSString* failCallback;
 }
