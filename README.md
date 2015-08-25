@@ -36,6 +36,23 @@ var options = {
 };
 ```
 
+#### Example:
+
+```
+var encodedString = 'base64encodedStringHere';
+window.plugins.PrintPDF.print({
+	data: encodedString,
+	title: 'Print Document',
+	success: function(){
+		console.log('success');
+	},
+	error: function(data){
+		data = JSON.parse(data);
+		console.log('failed: ' + data.error);
+	}
+});
+```
+
 ### dismiss()
 
 Use the `dismiss` function to programmatically dismiss the print dialog (iOS only). There are no options that can be passed in. When the dialog is dismissed it will trigger the error callback that was set for the `print()` function with the `dismissed` parameter set to `true`.
@@ -52,7 +69,7 @@ Use the `isPrintingAvailable` function to check if native printing is supported 
 window.plugins.PrintPDF.isPrintingAvailable(callback);
 ```
 
-Example callback function
+#### Example:
 
 ```
 window.plugins.PrintPDF.isPrintingAvailable( function(isAvailable) {
@@ -60,19 +77,3 @@ window.plugins.PrintPDF.isPrintingAvailable( function(isAvailable) {
 });
 ```
 
-## Example:
-
-```
-var encodedString = 'base64encodedStringHere';
-window.plugins.PrintPDF.print({
-	data: encodedString,
-	title: 'Print Document',
-	success: function(){
-		console.log('success');
-	},
-	error: function(data){
-		data = JSON.parse(data);
-		console.log('failed: ' + data.error);
-	}
-});
-```
