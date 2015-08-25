@@ -8,7 +8,7 @@
 //
 #import "NSData+Base64.h"
 
-#import "PrintPDF.h"
+#import "CDVPrintPDF.h"
 
 @interface PrintPDF (Private)
 - (BOOL) isPrintServiceAvailable;
@@ -107,7 +107,7 @@
 
  - (void) dismissPrintDialog:(CDVInvokedUrlCommand*)command
 {
-    
+
 }
 
 - (BOOL) isPrintServiceAvailable
