@@ -5,7 +5,7 @@ This plugin brings up a native overlay to print a PDF document using [AirPrint](
 
 ## Usage
 
-### print()
+### print(options)
 
 Use the `print` function to print an encoded document via a native printing interface.
 
@@ -44,7 +44,7 @@ Use the `dismiss` function to programmatically dismiss the print dialog (iOS onl
 window.plugins.PrintPDF.dismiss();
 ```
 
-### isPrintingAvailable()
+### isPrintingAvailable(callback)
 
 Use the `isPrintingAvailable` function to check if native printing is supported and available.
 
@@ -55,9 +55,9 @@ window.plugins.PrintPDF.isPrintingAvailable(callback);
 Example callback function
 
 ```
-var callback = function(isAvailable) {
+window.plugins.PrintPDF.isPrintingAvailable( function(isAvailable) {
 	console.log('printing is available: '+ isAvailable);
-}
+});
 ```
 
 ## Example:
