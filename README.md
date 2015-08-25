@@ -38,7 +38,7 @@ var options = {
 
 ### dismiss()
 
-Use the `dismiss` function to programmatically dismiss the print dialog (iOS only). There are no options that can be passed in. When the dialog is dismissed it will trigger the error callback that was set for the `print` function with the `dismissed` parameter set to `true`.
+Use the `dismiss` function to programmatically dismiss the print dialog (iOS only). There are no options that can be passed in. When the dialog is dismissed it will trigger the error callback that was set for the `print()` function with the `dismissed` parameter set to `true`.
 
 ```
 window.plugins.PrintPDF.dismiss();
