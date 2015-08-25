@@ -7,7 +7,7 @@ This plugin brings up a native overlay to print a PDF document using [AirPrint](
 
 ### print()
 
-Use the `print` function to print and encoded document via a native printing interface.
+Use the `print` function to print an encoded document via a native printing interface.
 
 ```
 window.plugins.PrintPDF.print(options);
