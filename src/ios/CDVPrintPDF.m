@@ -9,12 +9,17 @@
 #import "NSData+Base64.h"
 
 #import "CDVPrintPDF.h"
+#import "CDVFile.h"
 
 @interface CDVPrintPDF (Private)
 - (BOOL) isPrintServiceAvailable;
 @end
 
 @implementation CDVPrintPDF
+
+NSString * const KEY_TYPE_FILE = @"File";
+NSString * const KEY_TYPE_DATA = @"Data";
+
 
 @synthesize successCallback, failCallback, wasDismissed;
 
@@ -27,9 +32,25 @@
 
 - (void) printWithData:(CDVInvokedUrlCommand *)command
 {
-    NSString *pdfDataString = [command.arguments objectAtIndex:0];
+    //NSString *pdfDataString = [command.arguments objectAtIndex:0];
+    NSString *pdfString = [command.arguments objectAtIndex:0];
+    NSString *typeData = [command.arguments objectAtIndex:1];
     
-    NSData *pdfData = [NSData dataFromBase64String:pdfDataString];
+    NSData *pdfData = nil;
+    if (typeData != nil && [typeData compare:KEY_TYPE_FILE]) {
+        CDVFilesystemURL * urlCdv = [CDVFilesystemURL fileSystemURLWithString:pdfString];
+        CDVFile* filePlugin = [self.commandDelegate getCommandInstance:@"File"];
+        NSString * filePath = [filePlugin filesystemPathForURL:urlCdv];
+        NSFileManager *fileMgr = [NSFileManager defaultManager];
+        if (![fileMgr fileExistsAtPath:filePath isDirectory:false]) {
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": true, \"error\": \"File not Exist\" }"];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
+        }
+        pdfData = [NSData dataWithContentsOfFile:filePath];
+    } else {
+        pdfData = [NSData dataFromBase64String:pdfString];
+    }
     
     self.wasDismissed = NO;
 
@@ -83,8 +104,8 @@
             
             CGRect bounds = self.webView.bounds;
 
-			NSInteger dialogX = [[command.arguments objectAtIndex:1] integerValue];
-			NSInteger dialogY = [[command.arguments objectAtIndex:2] integerValue];
+			NSInteger dialogX = [[command.arguments objectAtIndex:2] integerValue];
+			NSInteger dialogY = [[command.arguments objectAtIndex:3] integerValue];
 			
 			if (dialogX < 0) {
 				dialogX = (bounds.size.width / 2);
