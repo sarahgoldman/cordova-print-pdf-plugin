@@ -1,4 +1,4 @@
-cordova.define("cordova-plugin-print-pdf.PrintPDF", function(require, exports, module) { /**
+ /**
  * @constructor
  */
 var PrintPDF = function () {
@@ -89,6 +89,4 @@ cordova.addConstructor(function () {
 
     if (!window.plugins) window.plugins = {};
     window.plugins.PrintPDF = new PrintPDF();
-});
-
 });
