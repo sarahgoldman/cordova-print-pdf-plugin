@@ -1,8 +1,9 @@
 package com.sgoldm.plugin.printPDF;
- 
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -40,11 +41,13 @@ public class PrintPDF extends CordovaPlugin {
 
     private CallbackContext command;
 
-    public static final String ACTION_PRINT_WITH_DATA = "printWithData";
+    public static final String ACTION_PRINT_DOCUMENT = "printDocument";
     public static final String ACTION_IS_PRINT_AVAILABLE = "isPrintingAvailable";
     private static final String DEFAULT_DOC_NAME = "unknown";
     private static final String DEFAULT_DOC_TYPE = "Data";
     private static final String FILE_DOC_TYPE = "File";
+
+    private String filePathString;
 
     /**
      * Executes the request.
@@ -68,15 +71,19 @@ public class PrintPDF extends CordovaPlugin {
 
         command = callback;
 
-        if (action.equals(ACTION_PRINT_WITH_DATA)) {
-            print(args);
+        if (action.equals(ACTION_PRINT_DOCUMENT)) {
+            if (BuildConfig.VERSION_CODE >= Build.VERSION_CODES.KITKAT) {
+                printNative(args);
+            } else {
+                printCloud(args);
+            }
                return true;
         } else if (action.equals(ACTION_IS_PRINT_AVAILABLE)) {
             isAvailable();
                return true;
         }
         return false;
-    
+
     }
 
     /**
@@ -98,14 +105,29 @@ public class PrintPDF extends CordovaPlugin {
     }
 
     /**
-     * Create an intent with the content to print out
-     * and sends that to the cloud print activity.
+     * Checks if the device is connected
+     * to the Internet.
      *
+     * @return
+     *      true if online otherwise false
+     */
+    private Boolean isOnline() {
+        Activity activity = cordova.getActivity();
+        ConnectivityManager conMGr =
+                (ConnectivityManager) activity.getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo netInfo = conMGr.getActiveNetworkInfo();
+
+        return netInfo != null && netInfo.isConnected();
+    }
+
+    /**
      * @param args
      *      The exec arguments as JSON
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void print (final JSONArray args) {
+    private void printNative (final JSONArray args) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
@@ -132,7 +154,7 @@ public class PrintPDF extends CordovaPlugin {
 
                         try {
                             if (type!= null && type.compareToIgnoreCase(FILE_DOC_TYPE) == 0){
-                                CordovaResourceApi resourceApi= webView.getResourceApi();
+                                CordovaResourceApi resourceApi = webView.getResourceApi();
                                 Uri fileURL = resourceApi.remapUri(Uri.parse(content));
                                 File file = new File(fileURL.getPath());
                                 if (!file.exists()) {
@@ -208,21 +230,97 @@ public class PrintPDF extends CordovaPlugin {
     }
 
     /**
-     * Checks if the device is connected
-     * to the Internet.
+    * Create an intent with the content to print out
+    * and sends that to the cloud print activity.
+    *
+    * @param args
+    *      The exec arguments as JSON
+    */
+   private void printCloud (final JSONArray args) {
+       final String content = args.optString(0, "");
+       final String type = args.optString(1, DEFAULT_DOC_TYPE);
+       final String title = args.optString(2, DEFAULT_DOC_NAME);
+
+       try {
+           File outputDir = cordova.getActivity().getCacheDir();
+           File tempFile = File.createTempFile(title, null, outputDir);
+           InputStream input = null;
+           FileOutputStream output = new FileOutputStream(tempFile, true);
+
+           if (type!= null && type.compareToIgnoreCase(FILE_DOC_TYPE) == 0){
+               CordovaResourceApi resourceApi = webView.getResourceApi();
+               Uri fileURL = resourceApi.remapUri(Uri.parse(content));
+               File file = new File(fileURL.getPath());
+               if (!file.exists()) {
+                   PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + "File not Exist" + "\"}");
+                   command.sendPluginResult(result);
+               }
+               input = new FileInputStream(file);
+           } else {
+               byte[] pdfAsBytes = Base64.decode(content, 0);
+               input = new ByteArrayInputStream(pdfAsBytes);
+           }
+           byte[] buf = new byte[1024];
+           int bytesRead;
+
+           while ((bytesRead = input.read(buf)) > 0) {
+               output.write(buf, 0, bytesRead);
+           }
+           output.close();
+           filePathString = tempFile.toString();
+           cordova.getActivity().runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                   printViaGoogleCloudPrintDialog(title, filePathString);
+               }
+           });
+       } catch (Exception e) {
+           PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \""+e.getMessage()+"\"}");
+           command.sendPluginResult(result);
+           return;
+       }
+
+   }
+
+   /**
+     * Uses the cloud print web dialog to print the content.
      *
-     * @return
-     *      true if online otherwise false
+     * @param title
+     *      The title for the print job
      */
-    private Boolean isOnline() {
-        Activity activity = cordova.getActivity();
-        ConnectivityManager conMGr =
-                (ConnectivityManager) activity.getSystemService(
-                        Context.CONNECTIVITY_SERVICE);
+    private void printViaGoogleCloudPrintDialog(String title, String filePath) {
+        Intent intent = new Intent(
+                cordova.getActivity(), CloudPrintDialog.class);
 
-        NetworkInfo netInfo = conMGr.getActiveNetworkInfo();
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_TITLE, title);
+        intent.putExtra(Intent.EXTRA_TEXT, filePath);
 
-        return netInfo != null && netInfo.isConnected();
+        cordova.startActivityForResult(null, intent, 0);
+        cordova.setActivityResultCallback(this);
     }
+
+    /**
+     * Called when an activity you launched exits, giving you the reqCode you
+     * started it with, the resCode it returned, and any additional data from it.
+     *
+     * @param reqCode     The request code originally supplied to startActivityForResult(),
+     *                    allowing you to identify who this result came from.
+     * @param resCode     The integer result code returned by the child activity
+     *                    through its setResult().
+     * @param intent      An Intent, which can return result data to the caller
+     *                    (various data can be attached to Intent "extras").
+     */
+    @Override
+    public void onActivityResult(int reqCode, int resCode, Intent intent) {
+        super.onActivityResult(reqCode, resCode, intent);
+        File file = new File(filePathString);
+        if (file.exists()) {
+            boolean deleted = file.delete();
+        }
+        command.success();
+        command = null;
+    }
+
 
 }

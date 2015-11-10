@@ -17,22 +17,24 @@ The default options object
 ```
 var options = {
 
-	data: null, 	// print data, base64 string (required)
+	data: null, 				// content, either base64 string or file uri (required)
 
-	title: '', 		// title of document
+	type: 'Data',				// type of content, use either 'Data' or 'File'
 
-	dialogX: -1,	// if a dialog coord is not set, it defaults to -1.
-					// the iOS method will fall back to center if it gets
-	dialogY: -1,	// a dialog coord less than 0. (iPad only)
+	title: 'Print Document', 	// title of document
 
-	success: null,	// success callback function, argument is a json string.
-	 				// parsed json format:
-					// {success: true}
+	dialogX: -1,				// if a dialog coord is not set, it defaults to -1.
+								// the iOS method will fall back to center if it gets
+	dialogY: -1,				// a dialog coord less than 0. (iPad only)
 
-	error: null		// error callback function, argument is a json string.
-	 				// parsed json format:
-					// {success: [boolean], available: [boolean], error: [string], dismissed: [boolean]}
-	
+	success: null,				// success callback function, argument is a json string.
+	 							// parsed json format:
+								// {success: true}
+
+	error: null					// error callback function, argument is a json string.
+	 							// parsed json format:
+								// {success: [boolean], available: [boolean], error: [string], dismissed: [boolean]}
+
 };
 ```
 
@@ -42,6 +44,7 @@ var options = {
 var encodedString = 'base64encodedStringHere';
 window.plugins.PrintPDF.print({
 	data: encodedString,
+	type: 'Data',
 	title: 'Print Document',
 	success: function(){
 		console.log('success');
@@ -76,4 +79,3 @@ window.plugins.PrintPDF.isPrintingAvailable( function(isAvailable) {
 	console.log('printing is available: '+ isAvailable);
 });
 ```
-

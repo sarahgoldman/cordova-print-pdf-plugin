@@ -30,12 +30,12 @@ NSString * const KEY_TYPE_DATA = @"Data";
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
-- (void) printWithData:(CDVInvokedUrlCommand *)command
+- (void) printDocument:(CDVInvokedUrlCommand *)command
 {
     //NSString *pdfDataString = [command.arguments objectAtIndex:0];
     NSString *pdfString = [command.arguments objectAtIndex:0];
     NSString *typeData = [command.arguments objectAtIndex:1];
-    
+
     NSData *pdfData = nil;
     if (typeData != nil && [typeData compare:KEY_TYPE_FILE]) {
         CDVFilesystemURL * urlCdv = [CDVFilesystemURL fileSystemURLWithString:pdfString];
@@ -43,7 +43,7 @@ NSString * const KEY_TYPE_DATA = @"Data";
         NSString * filePath = [filePlugin filesystemPathForURL:urlCdv];
         NSFileManager *fileMgr = [NSFileManager defaultManager];
         if (![fileMgr fileExistsAtPath:filePath isDirectory:false]) {
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": true, \"error\": \"File not Exist\" }"];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": true, \"error\": \"File does not exist\" }"];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             return;
         }
@@ -51,7 +51,7 @@ NSString * const KEY_TYPE_DATA = @"Data";
     } else {
         pdfData = [NSData dataFromBase64String:pdfString];
     }
-    
+
     self.wasDismissed = NO;
 
     if (![self isPrintServiceAvailable]){
@@ -59,13 +59,13 @@ NSString * const KEY_TYPE_DATA = @"Data";
 	    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
- 
+
     UIPrintInteractionController *printInteraction = [UIPrintInteractionController sharedPrintController];
-    
+
     if (!printInteraction){
         return;
     }
-    
+
     if ([UIPrintInteractionController isPrintingAvailable]){
         //Set the printer settings
         UIPrintInfo *printInfo = [UIPrintInfo printInfo];
@@ -74,18 +74,18 @@ NSString * const KEY_TYPE_DATA = @"Data";
         printInteraction.showsPageRange = YES;
         printInteraction.printingItem = pdfData;
         printInteraction.delegate = self;
-        
+
         void (^completionHandler)(UIPrintInteractionController *, BOOL, NSError *) =
         ^(UIPrintInteractionController *printController, BOOL completed, NSError *error) {
             CDVPluginResult* pluginResult = nil;
             if (!completed || error) {
-                
+
                 if (self.wasDismissed) {
-                    
+
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"{\"success\": false, \"available\": true, \"dismissed\": true}"];
-                    
+
                 } else {
-	
+
                     if (error != nil) {
 						pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"{\"success\": false, \"available\": true, \"error\": \"%@\", \"dismissed\": false}", error.localizedDescription]];
                     } else {
@@ -99,31 +99,31 @@ NSString * const KEY_TYPE_DATA = @"Data";
             }
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         };
-        
+
         if([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-            
+
             CGRect bounds = self.webView.bounds;
 
 			NSInteger dialogX = [[command.arguments objectAtIndex:2] integerValue];
 			NSInteger dialogY = [[command.arguments objectAtIndex:3] integerValue];
-			
+
 			if (dialogX < 0) {
 				dialogX = (bounds.size.width / 2);
 			}
-			
+
 			if (dialogY < 0) {
 				dialogY = (bounds.size.width / 2);
 			}
-            
+
             [printInteraction presentFromRect:CGRectMake(dialogX, dialogY, 0, 0) inView:self.webView animated:YES completionHandler:completionHandler];
-            
+
         }
         else {
             [printInteraction presentAnimated:YES completionHandler:completionHandler];
         }
-        
+
     }
-    
+
 }
 
  - (void) dismissPrintDialog:(CDVInvokedUrlCommand*)command
@@ -134,14 +134,14 @@ NSString * const KEY_TYPE_DATA = @"Data";
 
 - (BOOL) isPrintServiceAvailable
 {
-    
+
     Class myClass = NSClassFromString(@"UIPrintInteractionController");
     if (myClass) {
         UIPrintInteractionController *controller = [UIPrintInteractionController sharedPrintController];
         return (controller != nil) && [UIPrintInteractionController isPrintingAvailable];
     }
-    
-    
+
+
     return NO;
 }
 

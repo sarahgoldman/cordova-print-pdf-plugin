@@ -23,7 +23,7 @@
 @property (nonatomic) BOOL wasDismissed;
 
 - (void)isPrintingAvailable: (CDVInvokedUrlCommand*)command;
-- (void)printWithData:(CDVInvokedUrlCommand*)command;
+- (void)printDocument:(CDVInvokedUrlCommand*)command;
 - (void)dismissPrintDialog:(CDVInvokedUrlCommand*)command;
 
 @end
