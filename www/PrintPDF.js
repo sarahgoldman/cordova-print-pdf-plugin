@@ -1,4 +1,4 @@
-/**
+ /**
  * @constructor
  */
 var PrintPDF = function () {
@@ -13,7 +13,9 @@ PrintPDF.prototype.print = function(options) {
 	options = options || {};
 		
 	var data = options.data; // print data, base64 string (required)
-	
+
+	var type = options.type || 'Data'; // type of document
+
 	var title = options.title || 'Print Document'; // title of document
 	
 	var dialogX = options.dialogX || -1; // if a dialog coord is not set, default to -1.
@@ -39,12 +41,12 @@ PrintPDF.prototype.print = function(options) {
 	var args = [data];
 	
 	if (device.platform === "iOS") {
-		
+		args.push(type);
 		args.push(dialogX);
 		args.push(dialogY);
 	
     } else {
-	
+		args.push(type);
 		args.push(title);
 		
 	}
