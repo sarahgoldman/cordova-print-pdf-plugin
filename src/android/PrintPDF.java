@@ -72,10 +72,10 @@ public class PrintPDF extends CordovaPlugin {
         command = callback;
 
         if (action.equals(ACTION_PRINT_DOCUMENT)) {
-            if (BuildConfig.VERSION_CODE >= Build.VERSION_CODES.KITKAT) {
-                printNative(args);
-            } else {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                 printCloud(args);
+            } else {
+                printNative(args);
             }
                return true;
         } else if (action.equals(ACTION_IS_PRINT_AVAILABLE)) {
