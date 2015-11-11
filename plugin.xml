@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	id="cordova-plugin-print-pdf"
-	version="3.1.0">
+	version="4.0.0">
 	<name>PrintPDF</name>
 	<description>Cordova Print PDF Plugin</description>
 	<license>MIT</license>
@@ -35,7 +35,26 @@
             </feature>
         </config-file>
 
+		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <!--
+             * Activity is triggered when only the web based Google Cloud Print
+             * interface is available and no other native app.
+            -->
+            <activity android:name="com.sgoldm.plugin.printPDF.CloudPrintDialog"
+                      android:theme="@android:style/Theme.Black.NoTitleBar" />
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <!--
+             * Permissions required to be able to check if the web interface is
+             * available and to load the page from the web view
+            -->
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-permission android:name="android.permission.INTERNET" />
+        </config-file>
+
         <source-file src="src/android/PrintPDF.java" target-dir="src/com/sgoldm/plugin/printPDF" />
+        <source-file src="src/android/CloudPrintDialog.java" target-dir="src/com/sgoldm/plugin/printPDF" />
     </platform>
 
 </plugin>
