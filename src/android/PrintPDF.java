@@ -72,10 +72,19 @@ public class PrintPDF extends CordovaPlugin {
         command = callback;
 
         if (action.equals(ACTION_PRINT_DOCUMENT)) {
+
+            final String content = args.optString(0, "");
+            final String type = args.optString(1, DEFAULT_DOC_TYPE);
+            final String title = args.optString(2, DEFAULT_DOC_NAME);
+
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-                printCloud(args);
+                try {
+                    printViaCloud(content, type, title);
+                } catch (IOException e) {
+                    handlePrintError(e);
+                }
             } else {
-                printNative(args);
+                printViaNative(content, type, title);
             }
                return true;
         } else if (action.equals(ACTION_IS_PRINT_AVAILABLE)) {
@@ -123,18 +132,80 @@ public class PrintPDF extends CordovaPlugin {
     }
 
     /**
-     * @param args
-     *      The exec arguments as JSON
+     * Convert the content into an input stream
+     *
+     * @param content
+     *      The encoded data string or file uri string
+     *
+     * @param type
+     *      The content type as a string, either Data or File
+     *
+     * @return
+     *      content as InputStream
+     */
+    private InputStream convertContentToInputStream(final String content, final String type) throws FileNotFoundException {
+        InputStream input = null;
+        if (type!= null && type.compareToIgnoreCase(FILE_DOC_TYPE) == 0){
+            CordovaResourceApi resourceApi = webView.getResourceApi();
+            Uri fileURL = resourceApi.remapUri(Uri.parse(content));
+            File file = new File(fileURL.getPath());
+            if (!file.exists()) {
+                handlePrintError(new Exception("File does not exist"));
+            } else {
+                input = new FileInputStream(file);
+            }
+        } else {
+            byte[] pdfAsBytes = Base64.decode(content, 0);
+            input = new ByteArrayInputStream(pdfAsBytes);
+        }
+        return input;
+    }
+
+    private void writeInputStreamToOutput (InputStream input, FileOutputStream output) throws IOException {
+        byte[] buf = new byte[1024];
+        int bytesRead;
+
+        while ((bytesRead = input.read(buf)) > 0) {
+            output.write(buf, 0, bytesRead);
+        }
+        output.close();
+    }
+
+    private void handlePrintError (Exception e) {
+        e.printStackTrace();
+        PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + e.getMessage() + "\"}");
+        command.sendPluginResult(result);
+    }
+
+    private void handlePrintDismissal () {
+        PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"dismissed\": true }");
+        command.sendPluginResult(result);
+    }
+
+    private void handlePrintSuccess () {
+        PluginResult result = new PluginResult(PluginResult.Status.OK, "{\"success\": true, \"available\": true }");
+        command.sendPluginResult(result);
+        command = null;
+    }
+
+    /**
+     * Print the document using the native print api
+     *
+     * @param content
+     *      The encoded data string or file uri string
+     *
+     * @param type
+     *      The content type as a string, either Data or File
+     *
+     * @param title
+     *      The document title as a string
+     *
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void printNative (final JSONArray args) {
+    private void printViaNative (final String content, final String type, final String title) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                final String content = args.optString(0, "");
-                final String type = args.optString(1, DEFAULT_DOC_TYPE);
-                final String title = args.optString(2, DEFAULT_DOC_NAME);
-
 
                 PrintManager printManager = (PrintManager) cordova.getActivity().getSystemService(Context.PRINT_SERVICE);
 
@@ -144,70 +215,32 @@ public class PrintPDF extends CordovaPlugin {
                     public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback) {
 
                         if (cancellationSignal.isCanceled()) {
-                            PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"dismissed\": true }");
-                            command.sendPluginResult(result);
+                            handlePrintDismissal();
                             return;
                         }
 
                         InputStream input = null;
-                        OutputStream output = null;
+                        try {
+                            input = convertContentToInputStream(content, type);
+                        } catch (FileNotFoundException e) {
+                            handlePrintError(e);
+                        }
+                        FileOutputStream output = new FileOutputStream(destination.getFileDescriptor());
 
                         try {
-                            if (type!= null && type.compareToIgnoreCase(FILE_DOC_TYPE) == 0){
-                                CordovaResourceApi resourceApi = webView.getResourceApi();
-                                Uri fileURL = resourceApi.remapUri(Uri.parse(content));
-                                File file = new File(fileURL.getPath());
-                                if (!file.exists()) {
-                                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + "File not Exist" + "\"}");
-                                    command.sendPluginResult(result);
-                                }
-                                input = new FileInputStream(file);
-                            } else {
-                                byte[] pdfAsBytes = Base64.decode(content, 0);
-                                input = new ByteArrayInputStream(pdfAsBytes);
-                            }
-                            output = new FileOutputStream(destination.getFileDescriptor());
-
-                            byte[] buf = new byte[1024];
-                            int bytesRead;
-
-                            while ((bytesRead = input.read(buf)) > 0) {
-                                output.write(buf, 0, bytesRead);
-                            }
-
-                            callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
-
-                        } catch (FileNotFoundException ee) {
-                            //Catch exception
-                            ee.printStackTrace();
-                            PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + ee.getMessage() + "\"}");
-                            command.sendPluginResult(result);
-                            return;
-                        } catch (Exception e) {
-                            //Catch exception
-                            e.printStackTrace();
-                            PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + e.getMessage() + "\"}");
-                            command.sendPluginResult(result);
-                            return;
-                        } finally {
-                            try {
-                                input.close();
-                                output.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + e.getMessage() + "\"}");
-                                command.sendPluginResult(result);
-                                return;
-                            }
+                            writeInputStreamToOutput(input, output);
+                        } catch (IOException e) {
+                            handlePrintError(e);
                         }
+
+                        callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
                     }
 
                     @Override
                     public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, CancellationSignal cancellationSignal, LayoutResultCallback callback, Bundle extras) {
 
                         if (cancellationSignal.isCanceled()) {
-                            PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"dismissed\": true }");
-                            command.sendPluginResult(result);
+                            handlePrintDismissal();
                             return;
                         }
 
@@ -218,8 +251,7 @@ public class PrintPDF extends CordovaPlugin {
 
                     @Override
                     public void onFinish() {
-                        PluginResult result = new PluginResult(PluginResult.Status.OK, "{\"success\": true, \"available\": true }");
-                        command.sendPluginResult(result);
+                        handlePrintSuccess();
                     }
                 };
 
@@ -230,55 +262,36 @@ public class PrintPDF extends CordovaPlugin {
     }
 
     /**
-    * Create an intent with the content to print out
-    * and sends that to the cloud print activity.
-    *
-    * @param args
-    *      The exec arguments as JSON
+     * Create an intent with the content to print out
+     * and sends that to the cloud print activity.
+     *
+     * @param content
+     *      The encoded data string or file uri string
+     *
+     * @param type
+     *      the content type as a string, either Data or File
+     *
+     * @param title
+     *      The document title as a string
+     *
     */
-   private void printCloud (final JSONArray args) {
-       final String content = args.optString(0, "");
-       final String type = args.optString(1, DEFAULT_DOC_TYPE);
-       final String title = args.optString(2, DEFAULT_DOC_NAME);
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+   private void printViaCloud (final String content, final String type, final String title) throws IOException {
 
-       try {
-           File outputDir = cordova.getActivity().getCacheDir();
-           File tempFile = File.createTempFile(title, null, outputDir);
-           InputStream input = null;
-           FileOutputStream output = new FileOutputStream(tempFile, true);
+        File outputDir = cordova.getActivity().getCacheDir();
+        File tempFile = File.createTempFile(title, null, outputDir);
+        InputStream input = convertContentToInputStream(content, type);
+        FileOutputStream output = new FileOutputStream(tempFile, true);
 
-           if (type!= null && type.compareToIgnoreCase(FILE_DOC_TYPE) == 0){
-               CordovaResourceApi resourceApi = webView.getResourceApi();
-               Uri fileURL = resourceApi.remapUri(Uri.parse(content));
-               File file = new File(fileURL.getPath());
-               if (!file.exists()) {
-                   PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + "File not Exist" + "\"}");
-                   command.sendPluginResult(result);
-               }
-               input = new FileInputStream(file);
-           } else {
-               byte[] pdfAsBytes = Base64.decode(content, 0);
-               input = new ByteArrayInputStream(pdfAsBytes);
-           }
-           byte[] buf = new byte[1024];
-           int bytesRead;
+        writeInputStreamToOutput(input, output);
 
-           while ((bytesRead = input.read(buf)) > 0) {
-               output.write(buf, 0, bytesRead);
-           }
-           output.close();
-           filePathString = tempFile.toString();
-           cordova.getActivity().runOnUiThread(new Runnable() {
-               @Override
-               public void run() {
-                   printViaGoogleCloudPrintDialog(title, filePathString);
-               }
-           });
-       } catch (Exception e) {
-           PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \""+e.getMessage()+"\"}");
-           command.sendPluginResult(result);
-           return;
-       }
+        filePathString = tempFile.toString();
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                printViaGoogleCloudPrintDialog(title, filePathString);
+            }
+        });
 
    }
 
@@ -318,8 +331,7 @@ public class PrintPDF extends CordovaPlugin {
         if (file.exists()) {
             boolean deleted = file.delete();
         }
-        command.success();
-        command = null;
+        handlePrintSuccess();
     }
 
 
