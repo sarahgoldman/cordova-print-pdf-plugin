@@ -37,7 +37,7 @@ NSString * const KEY_TYPE_DATA = @"Data";
     NSString *typeData = [command.arguments objectAtIndex:1];
 
     NSData *pdfData = nil;
-    if (typeData != nil && [typeData compare:KEY_TYPE_FILE]) {
+    if (typeData != nil && [typeData isEqualToString:KEY_TYPE_FILE]) {
         CDVFilesystemURL * urlCdv = [CDVFilesystemURL fileSystemURLWithString:pdfString];
         CDVFile* filePlugin = [self.commandDelegate getCommandInstance:@"File"];
         NSString * filePath = [filePlugin filesystemPathForURL:urlCdv];
