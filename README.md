@@ -18,6 +18,7 @@ The default options object
 var options = {
 
 	data: null, 				// content, either base64 string or file uri (required)
+								// (omit "data:application/pdf;base64," part from base64 string) 
 
 	type: 'Data',				// type of content, use either 'Data' or 'File'
 
