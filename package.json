@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-print-pdf",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Cordova Print PDF Plugin",
   "cordova": {
     "id": "cordova-plugin-print-pdf",
