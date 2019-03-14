@@ -86,10 +86,10 @@ public class PrintPDF extends CordovaPlugin {
             } else {
                 printViaNative(content, type, title);
             }
-               return true;
+            return true;
         } else if (action.equals(ACTION_IS_PRINT_AVAILABLE)) {
             isAvailable();
-               return true;
+            return true;
         }
         return false;
 
@@ -99,7 +99,7 @@ public class PrintPDF extends CordovaPlugin {
      * Informs if the device is able to print documents.
      * A Internet connection is required to load the cloud print dialog.
      */
-    private void isAvailable () {
+    private void isAvailable() {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
@@ -145,14 +145,14 @@ public class PrintPDF extends CordovaPlugin {
      */
     private InputStream convertContentToInputStream(final String content, final String type) throws FileNotFoundException {
         InputStream input = null;
-        if (type!= null && type.compareToIgnoreCase(FILE_DOC_TYPE) == 0){
+        if (type != null && type.compareToIgnoreCase(FILE_DOC_TYPE) == 0) {
             CordovaResourceApi resourceApi = webView.getResourceApi();
+
             Uri fileURL = resourceApi.remapUri(Uri.parse(content));
-            File file = new File(fileURL.getPath());
-            if (!file.exists()) {
+            try {
+                input = resourceApi.openForRead(fileURL).inputStream;
+            } catch (IOException e) {
                 handlePrintError(new Exception("File does not exist"));
-            } else {
-                input = new FileInputStream(file);
             }
         } else {
             byte[] pdfAsBytes = Base64.decode(content, 0);
@@ -175,11 +175,13 @@ public class PrintPDF extends CordovaPlugin {
         e.printStackTrace();
         PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"error\": \"" + e.getMessage() + "\"}");
         command.sendPluginResult(result);
+        command = null;
     }
 
     private void handlePrintDismissal () {
         PluginResult result = new PluginResult(PluginResult.Status.ERROR, "{\"success\": false, \"available\": true, \"dismissed\": true }");
         command.sendPluginResult(result);
+        command = null;
     }
 
     private void handlePrintSuccess () {
@@ -209,6 +211,14 @@ public class PrintPDF extends CordovaPlugin {
 
                 PrintManager printManager = (PrintManager) cordova.getActivity().getSystemService(Context.PRINT_SERVICE);
 
+                final InputStream input;
+                try {
+                    input = convertContentToInputStream(content, type);
+                } catch (FileNotFoundException e) {
+                    handlePrintError(e);
+                    return;
+                }
+
                 PrintDocumentAdapter pda = new PrintDocumentAdapter() {
 
                     @Override
@@ -219,12 +229,6 @@ public class PrintPDF extends CordovaPlugin {
                             return;
                         }
 
-                        InputStream input = null;
-                        try {
-                            input = convertContentToInputStream(content, type);
-                        } catch (FileNotFoundException e) {
-                            handlePrintError(e);
-                        }
                         FileOutputStream output = new FileOutputStream(destination.getFileDescriptor());
 
                         try {
@@ -251,7 +255,8 @@ public class PrintPDF extends CordovaPlugin {
 
                     @Override
                     public void onFinish() {
-                        handlePrintSuccess();
+                        if (command != null)
+                            handlePrintSuccess();
                     }
                 };
 
